@@ -1,0 +1,225 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define MAX_CANDIDATES 10
+
+// Structure to represent a candidate
+struct Candidate {
+    char name[50];
+    int votes;
+};
+
+// Global variables
+struct Candidate candidates[MAX_CANDIDATES];
+int numCandidates = 0;
+int votingStarted = 0;
+// Function prototypes
+void displayAdminMenu();
+void displayUserMenu();
+void addCandidate();
+void viewCandidates();
+void startVoting();
+void vote();
+void viewResults();
+void getCurrentDateTime() {
+    time_t currentTime;
+    struct tm *localTime;
+
+    time(&currentTime);
+    localTime = localtime(&currentTime);
+
+    printf("Current Date and Time: %s", asctime(localTime));
+}
+void endElection() {
+    printf("Election ended!\n");
+}
+//admin login //
+int admin_login(){
+     char adminPassword[20] = "admin_24"; // Replace with your actual password
+    char enteredPassword[20];
+
+    printf("Enter admin password: ");
+    scanf("%s", enteredPassword);
+
+    if (strcmp(enteredPassword, adminPassword) == 0) {
+        return 1; // Password is correct
+    } else {
+        printf("Incorrect password. Access denied.\n");
+        return 0; // Password is incorrect
+    }
+}
+
+int main() {
+    char choice[7];
+   getCurrentDateTime();
+   
+
+    do {
+        printf("\n===== Voting System =====\n");
+        printf("enter your role: \n");
+        printf(" ...*user OR Admin*...\n");
+        printf("~ you want to exit :\n");
+        printf("=========================\n");
+        printf("Enter your choice: ");
+        scanf("%s", choice);
+         
+          for (int i = 0; choice[i]; i++) 
+          {
+             choice[i] = choice[i];
+         }
+        switch (choice[0]) {
+            case 'a':
+                displayAdminMenu();
+                break;
+            case 'u':
+                displayUserMenu();
+                break;
+            case 'e':
+                printf("Exiting the voting system.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice[0] != 'e');
+
+    return 0;
+}
+
+// Admin panel menu
+void displayAdminMenu() {
+     int choice;
+     if (admin_login()) {
+    do {
+        printf("\n===== Admin Panel =====\n");
+        printf("1. Add Candidate\n");
+        printf("2. View Candidates list\n");
+        printf("3. Start Voting\n");
+        printf("4. End Election \n");
+        printf("5. View Result\n");
+        printf("6. Back to main menu\n");
+        printf("=========================\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addCandidate();
+                break;
+            case 2:
+                viewCandidates();
+                break;
+            case 3:
+                startVoting();
+                break;
+            case 4: endElection();
+                 break;     
+            case 5:
+                viewResults();
+                break;
+            case 6:
+               printf("\nBack to main menu..\n");
+               break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 6);
+     } else {
+        printf("Admin login failed. Exiting...\n");
+    }
+}
+
+// User panel menu
+void displayUserMenu() {
+    int choice;
+    do {
+        printf("\n===== User Panel =====\n");
+        printf("--*all candidates list*--\n");
+        viewCandidates();
+        printf("2. Vote\n");
+        printf("3. Back to Main Menu\n");
+        printf("=========================\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 2: vote();
+                    break;
+            case 3:
+                printf("Returning to the main menu.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 3);
+}
+
+// Function to add a new candidate
+void addCandidate() {
+    if (numCandidates < MAX_CANDIDATES) {
+        printf("Enter the name of the candidate: ");
+        scanf("%s", candidates[numCandidates].name);
+        candidates[numCandidates].votes = 0;
+        numCandidates++;
+        printf("Candidate added successfully!\n");
+    } else {
+        printf("Maximum number of candidates reached!\n");
+    }
+}
+
+
+// Function to view the list of candidates
+void viewCandidates() {
+    printf("\nno.     name\n");
+    for (int i = 0; i < numCandidates; i++) 
+    {
+        printf("candidate ~%d. %s  : \n", i + 1, candidates[i].name);
+    }
+    printf("=============================\n");
+}
+
+// Function to start the voting process
+void startVoting() {
+    if (numCandidates == 0) {
+        printf("No candidates available. Please add candidates first.\n");
+    } else {
+        printf("Voting has started!\n");
+        votingStarted = 1;
+    }
+}
+
+// Function for users to vote
+void vote() {
+    if (!votingStarted) {
+        printf("Voting has not started yet.\n");
+        return;
+    }
+
+    printf("Enter the candidate number you want to vote for: ");
+    int candidateNumber;
+    scanf("%d", &candidateNumber);
+
+    if (candidateNumber >= 1 && candidateNumber <= numCandidates) {
+        candidates[candidateNumber - 1].votes++;
+        printf("Vote successfully recorded!\n");
+    } else {
+        printf("Invalid candidate number. Please try again.\n");
+    }  
+}
+
+// Function to view the voting results
+void viewResults() {
+   int maxVotesIndex =0;
+    printf("\n===== *Voting Results* =====\n");
+    for (int i = 0; i < numCandidates; i++) {
+        printf("%s - Votes: %d\n", candidates[i].name, candidates[i].votes);
+         // Check for the candidate with the most votes
+        if (candidates[i].votes > candidates[maxVotesIndex].votes) {
+            maxVotesIndex = i;
+        }
+    }
+    printf("=============***==============\n");
+    // Print the name of the winning candidate
+    printf("The leading candidate is:>>' %s ' \n", candidates[maxVotesIndex].name);
+}
